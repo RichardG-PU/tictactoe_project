@@ -1,4 +1,4 @@
-import React, {useState, useRef} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -6,12 +6,17 @@ import {
   TouchableWithoutFeedback,
   Button,
 } from 'react-native';
+import Header from './Header';
 
 const TicTacToe = ({players, navigateToHome}) => {
   const [history, setHistory] = useState([
-    {squares: Array(9).fill(null), xIsNext: true},
+    {squares: Array(9).fill(null), xIsNext: Math.random() < 0.5},
   ]);
   const [stepNumber, setStepNumber] = useState(0);
+
+  const calculateDraw = squares => {
+    return squares.every(square => square !== null);
+  };
 
   const calculateWinner = squares => {
     const lines = [
@@ -44,7 +49,7 @@ const TicTacToe = ({players, navigateToHome}) => {
     const current = currentHistory[currentHistory.length - 1];
     const squares = current.squares.slice();
 
-    if (squares[index] || calculateWinner(squares)) {
+    if (squares[index] || calculateWinner(squares) || calculateDraw(squares)) {
       return;
     }
 
@@ -60,7 +65,7 @@ const TicTacToe = ({players, navigateToHome}) => {
   };
 
   const handleNewGame = () => {
-    setHistory([{squares: Array(9).fill(null), xIsNext: true}]);
+    setHistory([{squares: Array(9).fill(null), xIsNext: Math.random() < 0.5}]);
     setStepNumber(0);
   };
 
@@ -70,10 +75,17 @@ const TicTacToe = ({players, navigateToHome}) => {
 
   const current = history[stepNumber];
   const winner = calculateWinner(current.squares);
-  const status = winner
-    ? `Winner: ${winner}`
-    : `Next player: ${current.xIsNext ? 'X' : 'O'}`;
+  let status;
 
+  if (winner) {
+    const winningPlayer = current.xIsNext ? players.player1 : players.player2;
+    status = `Winner: ${winningPlayer}`;
+  } else if (calculateDraw(current.squares)) {
+    status = "It's a draw!";
+  } else {
+    const currentPlayer = current.xIsNext ? players.player1 : players.player2;
+    status = `Next player: ${currentPlayer}`;
+  }
   const renderSquare = index => {
     const isSquareClickable = !current.squares[index] && !winner;
 
@@ -92,7 +104,7 @@ const TicTacToe = ({players, navigateToHome}) => {
 
   return (
     <View>
-      <Text>{`Welcome ${players.player1} and ${players.player2} to Tic Tac Toe!`}</Text>
+      <Header />
       <View style={styles.container}>
         <View style={styles.board}>
           <View style={styles.statusContainer}>
@@ -133,8 +145,6 @@ const styles = StyleSheet.create({
   },
   board: {
     marginTop: 20,
-    borderWidth: 2, // Add border for debugging
-    borderColor: 'red', // Set border color for debugging
   },
   statusContainer: {
     marginBottom: 10,
@@ -142,17 +152,17 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     justifyContent: 'center',
-    height: 50, // Set a fixed height for the status container
+    height: 50,
   },
   status: {
     fontSize: 18,
     fontWeight: 'bold',
     color: 'black',
-    textAlign: 'center', // Center the text horizontally
+    textAlign: 'center',
   },
   row: {
     flexDirection: 'row',
-    height: 100, // Set a fixed height for each row
+    height: 100,
   },
   square: {
     width: 100,

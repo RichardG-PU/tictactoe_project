@@ -1,6 +1,6 @@
-// Home.js
 import React, {useState} from 'react';
 import {View, TextInput, Button, StyleSheet} from 'react-native';
+import Header from './Header';
 
 const Home = ({navigateToTicTacToe}) => {
   const [player1, setPlayer1] = useState('');
@@ -12,6 +12,7 @@ const Home = ({navigateToTicTacToe}) => {
 
   return (
     <View style={styles.container}>
+      <Header />
       <TextInput
         style={styles.input}
         placeholder="Player 1 Name"
